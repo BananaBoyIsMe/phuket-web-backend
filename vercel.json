@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "phuket_web_backend",
+  "builds": [{
+    "src": "server.js",
+    "use": "@vercel/node"
+  }],
+  "routes": [{
+    "src": "/(.*)",
+    "dest": "/server.js"
+  }]
+}
