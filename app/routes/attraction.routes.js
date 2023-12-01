@@ -1,11 +1,13 @@
-
 module.exports = (app) => {
-  const AttractionController = require('../controllers/attraction.controller');
+  const attraction_controller = require("../controllers/attraction.controller");
   var router = require("express").Router();
-  // Define your routes
-  router.get('/', AttractionController.getAttractions);
-  // Define the route for retrieving a single attraction
-  router.get('/:id', AttractionController.getSingleAttraction);
-  app.use("/api/attractions", router)
-  module.exports = router;
-}
+  router.get("/", attraction_controller.getAllAttract);
+  router.get("/:id", attraction_controller.getAttractDetail);
+  router.get("/:limit/:offset", attraction_controller.getSomeAttract);
+  router.post("/upload", attraction_controller.createNewAttract);
+
+  router.put("/:id", attraction_controller.updateAttractCtrl);
+  router.delete("/:id", attraction_controller.deleteAttract);
+
+  app.use("/api/attract", router);
+};
