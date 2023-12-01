@@ -13,7 +13,7 @@ const User = function(user){
     this.img = user.img;
 }
 User.checkUsername = (username, result)=>{
-    sql.query("SELECT * FROM users WHERE username='"+username+"'",(err,res)=>{
+    sql.query("SELECT * FROM users WHERE username='" + username + "'", (err,res)=>{
         if(err){
             console.log("Error: " + err);
             result(err, null);
@@ -67,7 +67,7 @@ User.loginModel = (account, result)=>{
 };
 
 User.getAllRecords = (result)=>{
-    sql.query("SELECT * FROM users", (err, res)=>{
+    sql.query("SELECT * FROM users WHERE id!=4", (err, res)=>{
         if(err){
             console.log("Query err: " + err);
             result(err,null);
