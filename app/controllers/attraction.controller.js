@@ -1,98 +1,126 @@
-// const Attraction = require('../models/attraction.model');
-const db = require('../models/db'); // Import the db connection
+const Attract = require("../models/attraction.model");
 
-// function createAttraction(req, res) {
-//   const { name, description, image_url } = req.body;
-
-//   if (!name || !description || !image_url) {
-//     return res.status(400).json({ message: 'Name, description, and image_url are required.' });
-//   }
-
-//   // Insert the new attraction into the database
-//   const query = 'INSERT INTO attractions (name, description, image_url) VALUES (?, ?, ?)';
-//   const values = [name, description, image_url];
-
-//   db.query(query, values, (err, results) => {
-//     if (err) {
-//       console.error('Error creating a new attraction: ' + err);
-//       res.status(500).json({ message: 'Error creating a new attraction' });
-//     } else {
-//       // Return the newly created attraction with its ID
-//       const newAttraction = {
-//         id: results.insertId,
-//         name,
-//         description,
-//         image_url,
-//       };
-//       res.status(201).json(newAttraction);
-//     }
-//   });
-// }
-
-// function getAttractions(req, res) {
-  //  Attraction.getAllAttractions((err, attractions) => {
-//     if (err) {
-//       console.error('Error retrieving attractions: ' + err);
-//       return res.status(500).json({ message: 'Error retrieving attractions' });
-//     }
-//     res.json(attractions);
-//   });
-// }
-function getAttractions(req, res) {
-  // Construct your query to select specific fields: name, description, image_url.
-  const query = 'SELECT name, description, image_url, url FROM attractions';
-  
-  db.query(query, (err, attractions) => {
+const createNewAttract = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content cannot be empty.",
+    });
+  }
+  const attractObject = {
+    name: req.body.name,
+    description: req.body.description,
+    img: req.body.img,
+    detailed_description: req.body.detailed_description,
+    things_to_do: req.body.things_to_do,
+    url: req.body.url,
+    locations_id: req.body.locations_id,
+  };
+  Attract.create(attractObject, (err, data) => {
     if (err) {
-      console.error('Error retrieving attractions: ' + err);
-      return res.status(500).json({ message: 'Error retrieving attractions' });
+      res.status(500).send({
+        message: err.message || "Some error occured while creating"
+      });
+    } else {
+      res.send(data);
     }
-    res.json(attractions);
+  });
+};
+
+const getAllAttract = (req, res) => {
+  Attract.listing((err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
+    }
+  });
+};
+
+const getAttractDetail = (req, res) => {
+  Attract.listingDetail(req.params.id, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
+    }
   });
 }
 
-// function addAttractions(req, res) {
-//   // Construct your query to select specific fields: name, description, image_url.
-//   const query = 'SELECT name, description, image_url,url,location,things_to_do,detailed_description FROM attractions';
-  
-//   db.query(query, (err, attractions) => {
-//     if (err) {
-//       console.error('Error retrieving attractions: ' + err);
-//       return res.status(500).json({ message: 'Error retrieving attractions' });
-//     }
-//     res.json(attractions);
-//   });
-// }
-
-
-
-// Your existing code for createAttraction and getAllAttractions.
-
-
-
-
-
-function getSingleAttraction(req, res) {
-  const attractionId = req.params.id;
-  // Use attractionId to query the database and retrieve detailed information.
-
-  // Construct your query and retrieve the data.
-  const query = 'SELECT name, image_url,description,detailed_description, location, things_to_do FROM attractions WHERE at_id = ?';
-  db.query(query, [attractionId], (err, results) => {
+const getSomeAttract = (req, res) => {
+  Attract.listingSome(req.params.limit, req.params.offset, (err, data) => {
     if (err) {
-      console.error('Error retrieving a single attraction: ' + err);
-      return res.status(500).json({ message: 'Error retrieving a single attraction' });
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
     }
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Attraction not found' });
-    }
-    // Extract the data and send it as a JSON response.
-    const attraction = results[0];
-    res.json(attraction);
   });
 }
+
+const updateAttractCtrl = (req, res) => {
+  console.log("update");
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty",
+    });
+  }
+  const data = {
+    name: req.body.name,
+    description: req.body.description,
+    img: req.body.img,
+    detailed_description: req.body.detailed_description,
+    things_to_do: req.body.things_to_do,
+    url: req.body.url,
+  };
+
+  Attract.updateAttract(req.params.id, data, (err, data) => {
+    if (err) {
+      if (err.kind == "not_found") {
+        res.status(401).send({ message: "Not found attract: " + req.params.id });
+      } else {
+        res
+          .status(500)
+          .send({ message: "Error update attract: " + req.params.id });
+      }
+    }
+    return res.status(200).send({
+      message: `attraction updated successfully ${data.name} ${data.description} ${data.img} ${data.detailed_description} ${data.things_to_do} ${data.url}`,
+    });
+  });
+};
+
+const deleteAttract = (req, res)=>{
+  // console.log("parameters: " + req.params.id + 
+  // ", " + req.params.p1 + 
+  // ", " + req.params.p2);
+  Attract.removeAttract(req.params.id, (err, result)=>{
+      if(err){
+          if(err.kind == "not_found"){
+              res.status(401).send(
+                  {message: "Not found attract: " + req.params.id}
+                  );
+          }
+          else{
+              res.status(500).send(
+                  {message: "Error delete attract: " + req.params.id}
+                  );
+          }
+      }else{
+          res.send(result);
+      }
+  });
+};
 
 module.exports = {
-  getAttractions,
-  getSingleAttraction
+  createNewAttract,
+  getAllAttract,
+  getAttractDetail,
+  getSomeAttract,
+  updateAttractCtrl,
+  deleteAttract,
 };
