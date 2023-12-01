@@ -14,9 +14,12 @@ app.get("/", (req, res) => {
 });
 require("./app/routes/user.routes")(app);
 require("./app/routes/file.routes")(app);
-require("./app/routes/merchandise.routes")(app);   
+require("./app/routes/merchandise.routes")(app);
 require("./app/routes/attraction.routes")(app);
 require("./app/routes/dashboard.routes")(app);
+require("./app/routes/location.routes")(app);
+require("./app/routes/rating.routes")(app);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
