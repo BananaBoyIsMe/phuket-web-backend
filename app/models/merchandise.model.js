@@ -5,12 +5,13 @@ const Merch = (merch) => {
   this.description = merch.description;
   this.price = merch.price;
   this.img = merch.img;
-  this.rating = merch.rating;
+  this.detailed_description = merch.detailed_description;
   this.url = merch.url;
+  this.in_stock = merch.in_stock;
 };
 
 Merch.listing = (result) => {
-  sql.query("SELECT merch_id, name, price, img, rating, url FROM `merchandise`", (err, res) => {
+  sql.query("SELECT * FROM `merchandises`", (err, res) => {
     if (err) {
       console.log("Query error:", err);
       result(err, null);
@@ -21,7 +22,7 @@ Merch.listing = (result) => {
 }
 
 Merch.listingDetail = (id, result) => {
-  sql.query("SELECT * FROM `merchandise` WHERE merch_id=?", [id], (err, res) => {
+  sql.query("SELECT * FROM `merchandises` WHERE id=?", [id], (err, res) => {
     if (err) {
       console.log("Query error:", err);
       result(err, null);
@@ -32,7 +33,7 @@ Merch.listingDetail = (id, result) => {
 }
 
 Merch.listingSome = (limit, id, result) => {
-  sql.query("SELECT * FROM `merchandise` LIMIT " + limit + " OFFSET " + id + " " , (err, res) => {
+  sql.query("SELECT * FROM `merchandises` LIMIT " + limit + " OFFSET " + id + " " , (err, res) => {
     if (err) {
       console.log("Query error:", err);
       result(err, null);
@@ -42,78 +43,64 @@ Merch.listingSome = (limit, id, result) => {
   });
 }
 
-// Merch.create = (newMerch, result) => {
-//   sql.query("INSERT INTO merchandise SET ?", newMerch, (err, res) => {
-//     if (err) {
-//       console.log("Query error:", err);
-//       result(err, null);
-//       return;
-//     }
-//     result(null, { merch_id: res.insertId, ...newMerch});
-//     console.log("Created merchandise:", {
-//       merch_id: res.insertId,
-//       ...newMerch
-//     });
-//   });
-// };
+Merch.create = (newMerch, result) => {
+  sql.query("INSERT INTO `merchandises` SET ?", newMerch, (err, res) => {
+    if (err) {
+      console.log("Query error:", err);
+      result(err, null);
+      return;
+    }
+    result(null, { id: res.insertId, ...newMerch});
+    console.log("Created merchandise:", {
+      id: res.insertId,
+      ...newMerch
+    });
+  });
+};
 
-// const removeOldImage = (id, result) => {
-//   sql.query("SELECT * FROM merchandise WHERE id = ?", [id], (err, res) => {
-//     if (err) {
-//       console.log("error: " + err);
-//       result(err, null);
-//       return;
-//     }
-//     if (res.length) {
-//       let filePath = __basedir + "/assets/" + res[0].img;
-//       try {
-//         if (fs.existsSync(filePath)) {
-//           fs.unlink(filePath, (e) => {
-//             if (e) {
-//               console.log("Error: " + e);
-//               return;
-//             } else {
-//               console.log("File: " + res[0].img + " was removed");
-//               return;
-//             }
-//           });
-//         }
-//       } catch (error) {
-//         console.log("File: " + res[0].img + "not found.");
-//         return;
-//       }
-//     }
-//   });
-// };
+Merch.updateMerch = (id, data, result) => {
+  sql.query(
+    "UPDATE merchandises SET name=?, description=?, price=?, img=?, detailed_description=?, url=?, in_stock=? WHERE id=?",
+    [data.name, data.description, data.price, data.img, data.detailed_description, data.url, data.in_stock, id],
+    (err, res) => {
+      if (err) {
+        console.log("Error: " + err);
+        result(err, null);
+        return;
+      }
+      if (res.affectedRows == 0) {
+        result({ kind: "not_found" });
+        return;
+      }
+      console.log(
+        "Update merchandise: " +
+          {
+            id,
+            ...data,
+          }
+      );
+      result(null, {
+        id,
+        ...data,
+      });
+    }
+  );
+};
 
-// Merch.updateMerch = (id, data, result) => {
-//   removeOldImage(id);
-//   sql.query(
-//     "UPDATE merchandise SET name=?, price=?, img=? WHERE id=?",
-//     [data.name, data.price, data.img, id],
-//     (err, res) => {
-//       if (err) {
-//         console.log("Error: " + err);
-//         result(err, null);
-//         return;
-//       }
-//       if (res.affectedRows == 0) {
-//         result({ kind: "not_found" });
-//         return;
-//       }
-//       console.log(
-//         "Update user: " +
-//           {
-//             id,
-//             ...data,
-//           }
-//       );
-//       result(null, {
-//         id,
-//         ...data,
-//       });
-//     }
-//   );
-// };
+Merch.removeMerch = (id, result)=>{
+  sql.query("DELETE FROM merchandises WHERE id=?", [id], (err, res)=>{
+      if(err){
+          console.log("Query error: " + err);
+          result(err, null);
+          return;
+      }
+      if(res.affectedRows == 0){
+          result({kind: "not_found"}, null);
+          return;
+      }
+      console.log("Deleted merchandise id: " + id);
+      result(null, {id: id});
+  } );
+};
 
 module.exports = Merch;
