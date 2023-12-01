@@ -24,7 +24,7 @@ const dash = require("../models/dashboard.model");
 // }
 
 const getDash1 = (req, res) => {
-  dash.numUser((err, data) => {
+  dash.everything((err, data) => {
     if (err) {
       res.status(500).send({
         message: err.message || "Some error occured while getting",
@@ -35,9 +35,10 @@ const getDash1 = (req, res) => {
   })
 }
 
+
 const getDash2 = (req, res) => {
-  if (req.params.mORp == 1)
-  dash.topOne(req.params.limit, (err, data) => {
+  if (req.params.choose == 1)
+  dash.allRatingAttract((err, data) => {
     if (err) {
       res.status(500).send({
         message: err.message || "Some error occured while getting",
@@ -46,8 +47,48 @@ const getDash2 = (req, res) => {
       res.send(data);
     }
   })
-  if (req.params.mORp == 2)
-  dash.topTwo(req.params.limit, (err, data) => {
+  else if (req.params.choose == 2)
+  dash.allRatingMerch((err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
+    }
+  })
+  else if (req.params.choose == 3)
+  dash.oneRatingAttract(req.params.id, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
+    }
+  })
+  else if (req.params.choose == 4)
+  dash.oneRatingMerch(req.params.id, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
+    }
+  })
+  else if (req.params.choose == 5)
+  dash.topRatingAttract((err, data) => {
+    if (err) {
+      res.status(500).send({
+        message: err.message || "Some error occured while getting",
+      });
+    } else {
+      res.send(data);
+    }
+  })
+  else if (req.params.choose == 6)
+  dash.topRatingMerch((err, data) => {
     if (err) {
       res.status(500).send({
         message: err.message || "Some error occured while getting",
